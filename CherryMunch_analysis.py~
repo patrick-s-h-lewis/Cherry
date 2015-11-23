@@ -21,25 +21,41 @@ def get_publisher(response):
     publisher = url.split('/')[2]
     return publisher
 
-warnings.filterwarnings("ignore")
-
-
 def handler(signum,frame):
     raise Exception()
+  
+def choose_items(items):
+    if len(items)==1:
+        return items[0]
+    else:
+        scores=[]
+        for it in items:
+            score = 0
+            for k,v in it.items():
+                v=v.strip()
+                if not(v==u''): score+=1
+            scores.append(score)
+        print(scores)
+        return items[scores.index(max(scores))]
 
+        
+        
+warnings.filterwarnings("ignore")
 mongo_url = 'mongodb://localhost:27017/'
 db = 'Cherry'
 coll = 'CherryMunch'
 client = MongoClient(mongo_url)
 ca = client[db][coll]
+fo = open('scraped.json','w')
+fd = open('losses.json','w')
+
 
 ind=0
 dead=0
 with open('stuff.json','r') as f:
     j = json.load(f)
     for rec in j:
-        if ind%100==0:
-            print(ind)
+        print(ind)
         ind+=1
         item = {}
         doi = rec['doi']
@@ -60,16 +76,16 @@ with open('stuff.json','r') as f:
             except:
 	        die=True 
             if die:
-                print('I Died with DOI '+str(doi)+" and publisher " + str(pub))
+                json.dump({'doi':doi,'error':'missing_pub','pub':pub},fd,sort_keys=True,indent=4,ensure_ascii=False)
         except:
-            print('timeout die with '+str(doi))
+            json.dump({'doi':doi,'error':'timeout'},fd,sort_keys=True,indent=4,ensure_ascii=False)
         signal.alarm(0)
         if die:
             dead+=1
         else: 
+            items = []
             for paths in paths_list:
                 try:
-                    print(paths)
                     title= response.xpath(paths['x_title']).extract()[0]
                     abstract = response.xpath(paths['x_abstract']).extract()[0]
                     people = response.xpath(paths['x_people'])
@@ -95,19 +111,22 @@ with open('stuff.json','r') as f:
                         'authors':pex,
                         'depts':dex,
                         'abstract':abstract,
-                        'date': date,
+                        'date': date.strftime('%d %B %Y'),
                         'doi':doi,
                         'publisher':pub
                      }
+                     items.append(item)
                 except:
                     pass
             try:
+                item = choose_items(items)
                 a=item['title']
                 b=item['abstract']
                 c=item['authors']
                 d=item['depts']
                 e=item['date']
+                json.dump(item,fo,sort_keys=True,indent=4,ensure_ascii=False)
             except:
-                print('I Died with DOI '+str(doi)+"and publisher" + str(pub))
-                print(item)
+                json.dump({'doi':doi,'error':'collection','pub':pub},fd,sort_keys=True,indent=4,ensure_ascii=False)
+                dead+=1
 print('proportion of records not collected: ' + str(dead))
