@@ -38,12 +38,17 @@ def choose_items(items):
         print(scores)
         return items[scores.index(max(scores))]
 
+        
+        
 warnings.filterwarnings("ignore")
 mongo_url = 'mongodb://localhost:27017/'
 db = 'Cherry'
 coll = 'CherryMunch'
 client = MongoClient(mongo_url)
 ca = client[db][coll]
+fo = open('scraped.json','w')
+fd = open('losses.json','w')
+
 
 ind=0
 dead=0

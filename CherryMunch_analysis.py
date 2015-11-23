@@ -114,8 +114,8 @@ with open('stuff.json','r') as f:
                         'date': date.strftime('%d %B %Y'),
                         'doi':doi,
                         'publisher':pub
-                     }
-                     items.append(item)
+                    }
+                    items.append(item)
                 except:
                     pass
             try:
