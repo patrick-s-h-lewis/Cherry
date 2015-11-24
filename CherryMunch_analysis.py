@@ -8,6 +8,7 @@ from pymongo import MongoClient
 import json
 import signal
 import warnings
+import sys
 
 def get_paths(publisher,conn,doi):
     ###to do, build database with all of these
@@ -23,7 +24,7 @@ def get_publisher(response):
 
 def handler(signum,frame):
     raise Exception()
-  
+
 def choose_items(items):
     if len(items)==1:
         return items[0]
@@ -37,25 +38,25 @@ def choose_items(items):
             scores.append(score)
         print(scores)
         return items[scores.index(max(scores))]
-
-        
         
 warnings.filterwarnings("ignore")
-mongo_url = 'mongodb://localhost:27017/'
+
+#mongo_url = 'mongodb://localhost:27017/' #local
+mongo_url = 'mongodb://localhost:6666/' #remote
 db = 'Cherry'
 coll = 'CherryMunch'
 client = MongoClient(mongo_url)
 ca = client[db][coll]
-fo = open('scraped.json','w')
-fd = open('losses.json','w')
-
-
+fo = open('scrapeddd.json','w')
+fd = open('losser.json','w')
+rep = {'5':'6'}
+json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
 ind=0
 dead=0
 with open('stuff.json','r') as f:
     j = json.load(f)
     for rec in j:
-        print(ind)
+        #print(ind)
         ind+=1
         item = {}
         doi = rec['doi']
@@ -69,16 +70,22 @@ with open('stuff.json','r') as f:
             response=TextResponse(r.url,body=r.text, encoding='utf-8')
         ###SENSE Who's publisher this is
             pub = get_publisher(response)
+            print pub
         ###LOAD CORRECT XPATHS:
             try:
-	        paths_list = get_paths(pub,ca,doi)
+                paths_list = get_paths(pub,ca,doi)
                 die=False
             except:
-	        die=True 
+                print(sys.exc_info()[0])
+                die=True 
             if die:
-                json.dump({'doi':doi,'error':'missing_pub','pub':pub},fd,sort_keys=True,indent=4,ensure_ascii=False)
+                print 'die'
+                rep = {'doi':doi,'error':'missing_pub','pub':pub}
+                json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
         except:
-            json.dump({'doi':doi,'error':'timeout'},fd,sort_keys=True,indent=4,ensure_ascii=False)
+            print(sys.exc_info()[0])
+            rep = {'doi':doi,'error':'timeout'}
+            json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
         signal.alarm(0)
         if die:
             dead+=1
@@ -117,16 +124,16 @@ with open('stuff.json','r') as f:
                     }
                     items.append(item)
                 except:
+                    print(sys.exc_info()[0])
                     pass
             try:
                 item = choose_items(items)
-                a=item['title']
-                b=item['abstract']
-                c=item['authors']
-                d=item['depts']
-                e=item['date']
-                json.dump(item,fo,sort_keys=True,indent=4,ensure_ascii=False)
+                json.dump(item,fo,sort_keys=True,indent=4,ensure_ascii=True)
             except:
-                json.dump({'doi':doi,'error':'collection','pub':pub},fd,sort_keys=True,indent=4,ensure_ascii=False)
+                print(sys.exc_info()[0])
+                rep = {'doi':doi,'error':'collection','pub':pub}
+                json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
                 dead+=1
+fd.close()
+fo.close()
 print('proportion of records not collected: ' + str(dead))
