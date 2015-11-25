@@ -47,16 +47,16 @@ db = 'Cherry'
 coll = 'CherryMunch'
 client = MongoClient(mongo_url)
 ca = client[db][coll]
-fo = open('scrapeddd.json','w')
-fd = open('losser.json','w')
+fd = open('losses1.json','w')
 rep = {'5':'6'}
 json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
+fd.close()
 ind=0
 dead=0
 with open('stuff.json','r') as f:
     j = json.load(f)
     for rec in j:
-        #print(ind)
+        print(ind)
         ind+=1
         item = {}
         doi = rec['doi']
@@ -70,7 +70,6 @@ with open('stuff.json','r') as f:
             response=TextResponse(r.url,body=r.text, encoding='utf-8')
         ###SENSE Who's publisher this is
             pub = get_publisher(response)
-            print pub
         ###LOAD CORRECT XPATHS:
             try:
                 paths_list = get_paths(pub,ca,doi)
@@ -81,11 +80,16 @@ with open('stuff.json','r') as f:
             if die:
                 print 'die'
                 rep = {'doi':doi,'error':'missing_pub','pub':pub}
-                json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
+                print(rep)
+                with open('losses2.json','a') as fd:
+                    json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
         except:
             print(sys.exc_info()[0])
+            print('die')
             rep = {'doi':doi,'error':'timeout'}
-            json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
+            print(rep)
+            with open('losses2.json','a') as fd:
+                json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
         signal.alarm(0)
         if die:
             dead+=1
@@ -128,12 +132,15 @@ with open('stuff.json','r') as f:
                     pass
             try:
                 item = choose_items(items)
-                json.dump(item,fo,sort_keys=True,indent=4,ensure_ascii=True)
+                with open('scraped1.json','a') as fo:
+                    json.dump(item,fo,sort_keys=True,indent=4,ensure_ascii=True)
             except:
+                print('die')
                 print(sys.exc_info()[0])
                 rep = {'doi':doi,'error':'collection','pub':pub}
-                json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
+                print(rep)
+                with open('losses2.json','a') as fd:
+                    json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
+                print('dumped')
                 dead+=1
-fd.close()
-fo.close()
 print('proportion of records not collected: ' + str(dead))
