@@ -9,6 +9,7 @@ import json
 import signal
 import warnings
 import sys
+import os
 
 def get_paths(publisher,conn,doi):
     ###to do, build database with all of these
@@ -41,18 +42,21 @@ def choose_items(items):
         
 warnings.filterwarnings("ignore")
 
-#mongo_url = 'mongodb://localhost:27017/' #local
-mongo_url = 'mongodb://localhost:6666/' #remote
+mongo_url = 'mongodb://localhost:27017/' #local
+#mongo_url = 'mongodb://localhost:6666/' #remote
 db = 'Cherry'
 coll = 'CherryMunch'
 client = MongoClient(mongo_url)
 ca = client[db][coll]
-fd = open('losses1.json','w')
-rep = {'5':'6'}
-json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
-fd.close()
 ind=0
 dead=0
+scraped = 'scraped3.json'
+losses = 'losses3.json'
+with open(losses,'w') as fd:
+    fd.write('[')
+with open(scraped,'w') as fd:
+    fd.write('[')
+    
 with open('stuff.json','r') as f:
     j = json.load(f)
     for rec in j:
@@ -75,21 +79,19 @@ with open('stuff.json','r') as f:
                 paths_list = get_paths(pub,ca,doi)
                 die=False
             except:
-                print(sys.exc_info()[0])
                 die=True 
             if die:
                 print 'die'
                 rep = {'doi':doi,'error':'missing_pub','pub':pub}
-                print(rep)
-                with open('losses2.json','a') as fd:
+                with open(losses,'a') as fd:
                     json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
+                    fd.write(',')
         except:
-            print(sys.exc_info()[0])
             print('die')
             rep = {'doi':doi,'error':'timeout'}
-            print(rep)
-            with open('losses2.json','a') as fd:
+            with open(losses,'a') as fd:
                 json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
+                fd.write(',')
         signal.alarm(0)
         if die:
             dead+=1
@@ -118,29 +120,35 @@ with open('stuff.json','r') as f:
                     exec paths['date_con']
                     dex = list(set(dex))
                     item = {
-                        'title':title,
+                        'title':re.sub('\n','',title),
                         'authors':pex,
                         'depts':dex,
-                        'abstract':abstract,
+                        'abstract':re.sub('\n','',abstract),
                         'date': date.strftime('%d %B %Y'),
                         'doi':doi,
                         'publisher':pub
                     }
                     items.append(item)
                 except:
-                    print(sys.exc_info()[0])
                     pass
             try:
                 item = choose_items(items)
-                with open('scraped1.json','a') as fo:
+                with open(scraped,'a') as fo:
                     json.dump(item,fo,sort_keys=True,indent=4,ensure_ascii=True)
+                    fo.write(',')
             except:
                 print('die')
-                print(sys.exc_info()[0])
                 rep = {'doi':doi,'error':'collection','pub':pub}
-                print(rep)
-                with open('losses2.json','a') as fd:
+                with open(losses,'a') as fd:
                     json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
-                print('dumped')
+                    fd.write(',')
                 dead+=1
+with open(scraped, 'rb+') as fo:
+    fo.seek(-1, os.SEEK_END)
+    fo.truncate()
+    fo.write(']')
+with open(losses, 'rb+') as fd:
+    fd.seek(-1, os.SEEK_END)
+    fd.truncate()
+    fd.write(']')
 print('proportion of records not collected: ' + str(dead))

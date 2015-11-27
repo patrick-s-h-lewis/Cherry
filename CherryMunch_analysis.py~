@@ -8,6 +8,8 @@ from pymongo import MongoClient
 import json
 import signal
 import warnings
+import sys
+import os
 
 def get_paths(publisher,conn,doi):
     ###to do, build database with all of these
@@ -23,7 +25,7 @@ def get_publisher(response):
 
 def handler(signum,frame):
     raise Exception()
-  
+
 def choose_items(items):
     if len(items)==1:
         return items[0]
@@ -37,24 +39,27 @@ def choose_items(items):
             scores.append(score)
         print(scores)
         return items[scores.index(max(scores))]
-
-        
         
 warnings.filterwarnings("ignore")
-mongo_url = 'mongodb://localhost:27017/'
+
+mongo_url = 'mongodb://localhost:27017/' #local
+#mongo_url = 'mongodb://localhost:6666/' #remote
 db = 'Cherry'
 coll = 'CherryMunch'
 client = MongoClient(mongo_url)
 ca = client[db][coll]
-fo = open('scraped.json','w')
-fd = open('losses.json','w')
-
-
 ind=0
 dead=0
+scraped = 'scraped3.json'
+losses = 'losses3.json'
+with open(losses,'w') as fd:
+    fd.write('[')
+with open(scraped,'w') as fd:
+    fd.write('[')
+    
 with open('stuff.json','r') as f:
     j = json.load(f)
-    for rec in j:
+    for rec in j[0:50]:
         print(ind)
         ind+=1
         item = {}
@@ -71,14 +76,22 @@ with open('stuff.json','r') as f:
             pub = get_publisher(response)
         ###LOAD CORRECT XPATHS:
             try:
-	        paths_list = get_paths(pub,ca,doi)
+                paths_list = get_paths(pub,ca,doi)
                 die=False
             except:
-	        die=True 
+                die=True 
             if die:
-                json.dump({'doi':doi,'error':'missing_pub','pub':pub},fd,sort_keys=True,indent=4,ensure_ascii=False)
+                print 'die'
+                rep = {'doi':doi,'error':'missing_pub','pub':pub}
+                with open(losses,'a') as fd:
+                    json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
+                    fd.write(',')
         except:
-            json.dump({'doi':doi,'error':'timeout'},fd,sort_keys=True,indent=4,ensure_ascii=False)
+            print('die')
+            rep = {'doi':doi,'error':'timeout'}
+            with open(losses,'a') as fd:
+                json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
+                fd.write(',')
         signal.alarm(0)
         if die:
             dead+=1
@@ -107,26 +120,35 @@ with open('stuff.json','r') as f:
                     exec paths['date_con']
                     dex = list(set(dex))
                     item = {
-                        'title':title,
+                        'title':re.sub('\n','',title),
                         'authors':pex,
                         'depts':dex,
-                        'abstract':abstract,
+                        'abstract':re.sub('\n','',abstract),
                         'date': date.strftime('%d %B %Y'),
                         'doi':doi,
                         'publisher':pub
-                     }
-                     items.append(item)
+                    }
+                    items.append(item)
                 except:
                     pass
             try:
                 item = choose_items(items)
-                a=item['title']
-                b=item['abstract']
-                c=item['authors']
-                d=item['depts']
-                e=item['date']
-                json.dump(item,fo,sort_keys=True,indent=4,ensure_ascii=False)
+                with open(scraped,'a') as fo:
+                    json.dump(item,fo,sort_keys=True,indent=4,ensure_ascii=True)
+                    fo.write(',')
             except:
-                json.dump({'doi':doi,'error':'collection','pub':pub},fd,sort_keys=True,indent=4,ensure_ascii=False)
+                print('die')
+                rep = {'doi':doi,'error':'collection','pub':pub}
+                with open(losses,'a') as fd:
+                    json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
+                    fd.write(',')
                 dead+=1
+with open(scraped, 'rb+') as fo:
+    fo.seek(-1, os.SEEK_END)
+    fo.truncate()
+    fo.write(']')
+with open(losses, 'rb+') as fd:
+    fd.seek(-1, os.SEEK_END)
+    fd.truncate()
+    fd.write(']')
 print('proportion of records not collected: ' + str(dead))
