@@ -34,10 +34,13 @@ def choose_items(items):
         for it in items:
             score = 0
             for k,v in it.items():
-                v=v.strip()
-                if not(v==u''): score+=1
+                if type(v)=='str':
+                    v=v.strip()
+                    if not(v==u''): score+=1
+                else:
+                    if not(v==[]):
+                        score+=1
             scores.append(score)
-        print(scores)
         return items[scores.index(max(scores))]
         
 warnings.filterwarnings("ignore")
@@ -50,14 +53,14 @@ client = MongoClient(mongo_url)
 ca = client[db][coll]
 ind=0
 dead=0
-scraped = 'scraped3.json'
-losses = 'losses3.json'
+scraped = 'scraped6.json'
+losses = 'losses6.json'
 with open(losses,'w') as fd:
     fd.write('[')
 with open(scraped,'w') as fd:
     fd.write('[')
     
-with open('stuff.json','r') as f:
+with open('losses5.json','r') as f:
     j = json.load(f)
     for rec in j:
         print(ind)
@@ -81,13 +84,13 @@ with open('stuff.json','r') as f:
             except:
                 die=True 
             if die:
-                print 'die'
+                print('Missing Publisher Fail')
                 rep = {'doi':doi,'error':'missing_pub','pub':pub}
                 with open(losses,'a') as fd:
                     json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
                     fd.write(',')
         except:
-            print('die')
+            print('Page Timeout Fail')
             rep = {'doi':doi,'error':'timeout'}
             with open(losses,'a') as fd:
                 json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)
@@ -119,6 +122,7 @@ with open('stuff.json','r') as f:
                     date = response.xpath(paths['x_date']).extract()[0]
                     exec paths['date_con']
                     dex = list(set(dex))
+                    pex = list(set(pex))
                     item = {
                         'title':re.sub('\n','',title),
                         'authors':pex,
@@ -126,7 +130,7 @@ with open('stuff.json','r') as f:
                         'abstract':re.sub('\n','',abstract),
                         'date': date.strftime('%d %B %Y'),
                         'doi':doi,
-                        'publisher':pub
+                        'publisher':paths['publisher']
                     }
                     items.append(item)
                 except:
@@ -137,7 +141,7 @@ with open('stuff.json','r') as f:
                     json.dump(item,fo,sort_keys=True,indent=4,ensure_ascii=True)
                     fo.write(',')
             except:
-                print('die')
+                print('Collection Fail')
                 rep = {'doi':doi,'error':'collection','pub':pub}
                 with open(losses,'a') as fd:
                     json.dump(rep,fd,sort_keys=True,indent=4,ensure_ascii=True)

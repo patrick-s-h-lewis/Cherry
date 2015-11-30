@@ -1,0 +1,88 @@
+**********************************************************************
+Analysis of scraping run performed at 17:11 30 November 2015
+**********************************************************************
+
+Total records parsed:                             138
+Total records successfully collected:             11
+Conversion rate:                                  7.9710%
+
+
+----------------------------------------------------------------------
+Losses Breakdown:
+----------------------------------------------------------------------
+
+Total No. of records not converted:               127
+No. lost due to errors in collection:             18
+No. lost due to request timeouts:                 1
+No. lost due to missing publisher info:           108
+
+
+----------------------------------------------------------------------
+Collection Errors Breakdown:
+----------------------------------------------------------------------
+
+Most collection errors for publisher:           www.degruyter.com
+
+
+Publisher                                   no. of errors
+onlinelibrary.wiley.com                           1
+www.sciencedirect.com                             1
+rsif.royalsocietypublishing.org                   1
+www.degruyter.com                                 5
+www.nature.com                                    1
+iopscience.iop.org                                3
+link.springer.com                                 1
+pubs.rsc.org                                      5
+
+
+----------------------------------------------------------------------
+Missing publisher Errors Breakdown:
+----------------------------------------------------------------------
+
+Most frequent missing publisher:                www.tandfonline.com
+
+
+Publisher                                number of records
+jmm.microbiologyresearch.org                      1
+www.publish.csiro.au                              1
+rheumatology.oxfordjournals.org                   1
+ieeexplore.ieee.org                               3
+figshare.com                                      1
+www.annualreviews.org                             1
+www.jbc.org                                       2
+pt.wkhealth.com                                   2
+journals.plos.org                                 7
+koreascience.or.kr                                1
+www.tandfonline.com                               20
+www.ingentaconnect.com                            4
+www.nanoscalereslett.com                          1
+www.jlr.org                                       1
+ecst.ecsdl.org                                    1
+www.biomedcentral.com                             2
+pih.sagepub.com                                   1
+www.beilstein-journals.org                        1
+www.biochemsoctrans.org                           1
+aem.asm.org                                       1
+proceedings.spiedigitallibrary.org                3
+www.nrcresearchpress.com                          3
+www.jpbsonline.org                                1
+jes.ecsdl.org                                     1
+ammin.geoscienceworld.org                         2
+www.eurekaselect.com                              1
+www.biochemj.org                                  1
+rsta.royalsocietypublishing.org                   5
+journal.chemistrycentral.com                      3
+journals.iucr.org                                 1
+journals.cambridge.org                            1
+www.amb-express.com                               1
+www.hindawi.com                                   1
+www.sciencemag.org                                2
+papers.sae.org                                    1
+www.worldscientific.com                           1
+www.pnas.org                                      3
+www.plantphysiol.org                              1
+www.thieme-connect.de                             18
+www.mdpi.com                                      4
+www.omicsonline.org                               1
+
+**********************************************************************
