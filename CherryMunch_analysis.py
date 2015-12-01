@@ -53,14 +53,14 @@ client = MongoClient(mongo_url)
 ca = client[db][coll]
 ind=0
 dead=0
-scraped = 'scraped6.json'
-losses = 'losses6.json'
+scraped = 'scraped.json'
+losses = 'losses.json'
 with open(losses,'w') as fd:
     fd.write('[')
 with open(scraped,'w') as fd:
     fd.write('[')
     
-with open('losses5.json','r') as f:
+with open('stuff.json','r') as f:
     j = json.load(f)
     for rec in j:
         print(ind)

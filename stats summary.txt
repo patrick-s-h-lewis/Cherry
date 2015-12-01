@@ -1,10 +1,10 @@
 **********************************************************************
-Analysis of scraping run performed at 17:11 30 November 2015
+Analysis of scraping run performed at 11:12 01 December 2015
 **********************************************************************
 
-Total records parsed:                             138
-Total records successfully collected:             11
-Conversion rate:                                  7.9710%
+Total records parsed:                             2027
+Total records successfully collected:             1900
+Conversion rate:                                  93.7346%
 
 
 ----------------------------------------------------------------------
@@ -12,8 +12,8 @@ Losses Breakdown:
 ----------------------------------------------------------------------
 
 Total No. of records not converted:               127
-No. lost due to errors in collection:             18
-No. lost due to request timeouts:                 1
+No. lost due to errors in collection:             14
+No. lost due to request timeouts:                 5
 No. lost due to missing publisher info:           108
 
 
@@ -32,7 +32,7 @@ www.degruyter.com                                 5
 www.nature.com                                    1
 iopscience.iop.org                                3
 link.springer.com                                 1
-pubs.rsc.org                                      5
+pubs.rsc.org                                      1
 
 
 ----------------------------------------------------------------------

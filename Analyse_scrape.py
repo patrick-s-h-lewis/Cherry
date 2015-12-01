@@ -2,8 +2,8 @@ import json
 import re
 import datetime
 export = 'stats summary.txt'
-scraped = 'scraped6'+'.json'
-failed = 'losses6'+'.json'
+scraped = 'scraped'+'.json'
+failed = 'losses'+'.json'
 with open(scraped,'r') as sr:
     with open(failed,'r') as fr:
         s = json.load(sr)
